@@ -235,8 +235,20 @@ function createUnitsList() {
     const unitsSearch = document.getElementById('unitsSearch');
     const unitsCount = document.getElementById('unitsCount');
     
+    if (!unitsList || !unitsSearch || !unitsCount) {
+        console.error('Elementele necesare pentru listă nu au fost găsite!');
+        return;
+    }
+    
     // Golește lista
     unitsList.innerHTML = '';
+    
+    // Verifică dacă avem date
+    if (!allData || allData.length === 0) {
+        unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">Nu există date de afișat.</div>';
+        unitsCount.textContent = '0';
+        return;
+    }
     
     // Sortează unitățile după nume
     const sortedData = [...allData].sort((a, b) => {
@@ -272,7 +284,7 @@ function createUnitsList() {
             'Liceu cu program sportiv prelungit': '#e74c3c',
             'Centrul Județean de Resurse și Asistență Educațională': '#16a085',
             'Școală Profesională Specială': '#27ae60',
-            'Colegiul Tehnic': '#d35400',
+            'Colegiu Tehnic': '#d35400',
             'Liceu Tehnologic Agricol': '#e67e22',
             'Liceu Tehnologic de Industrie Alimentară': '#d35400',
             'Liceu Tehnologic de Industrie Alimentara': '#d35400',
@@ -380,6 +392,20 @@ function loadData() {
     
     console.log('Începem încărcarea datelor...');
     
+    // Verifică dacă există elementele necesare
+    const unitsList = document.getElementById('unitsList');
+    const unitsCount = document.getElementById('unitsCount');
+    
+    if (!unitsList) {
+        console.error('Elementul unitsList nu a fost găsit!');
+        hideLoading();
+        return;
+    }
+    
+    // Afișează un mesaj de încărcare în listă
+    unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">Se încarcă datele...</div>';
+    if (unitsCount) unitsCount.textContent = '0';
+    
     fetch('data/locatii.csv')
         .then(response => {
             console.log('Response status:', response.status);
@@ -401,6 +427,7 @@ function loadData() {
                     // Verifică dacă avem date
                     if (results.data.length === 0) {
                         console.error('CSV-ul este gol sau are format greșit');
+                        unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Eroare: Fișierul CSV este gol sau are format greșit.</div>';
                         hideLoading();
                         alert('Fișierul CSV este gol sau are format greșit.');
                         return;
@@ -428,6 +455,7 @@ function loadData() {
                     console.log(`Unități valide: ${allData.length} din ${results.data.length}`);
                     
                     if (allData.length === 0) {
+                        unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Eroare: Nu s-au găsit unități cu coordonate valide.</div>';
                         alert('Nu s-au găsit unități cu coordonate valide. Verifică fișierul CSV.');
                         hideLoading();
                         return;
@@ -461,6 +489,7 @@ function loadData() {
                 },
                 error: function(error) {
                     console.error('Eroare la parsare CSV:', error);
+                    unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Eroare la parsarea datelor CSV.</div>';
                     hideLoading();
                     alert('Eroare la parsarea datelor. Verifică formatul CSV.');
                 }
@@ -468,6 +497,7 @@ function loadData() {
         })
         .catch(error => {
             console.error('Eroare la încărcare date:', error);
+            unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Eroare: Nu s-a putut încărca fișierul data/locatii.csv</div>';
             hideLoading();
             alert('Eroare la conectarea la server. Verifică calea către fișierul CSV.');
         });
