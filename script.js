@@ -218,7 +218,160 @@ function addMarker(data) {
     marker.tip = Tip;
     marker.nume = nume.toLowerCase();
     
+    // Adaugă event listener pentru click pe marker
+    marker.on('click', function() {
+        const markerIndex = allMarkers.indexOf(this);
+        if (markerIndex !== -1) {
+            highlightUnitInList(markerIndex);
+        }
+    });
+    
     return marker;
+}
+
+// Funcție pentru creare listă unități
+function createUnitsList() {
+    const unitsList = document.getElementById('unitsList');
+    const unitsSearch = document.getElementById('unitsSearch');
+    const unitsCount = document.getElementById('unitsCount');
+    
+    // Golește lista
+    unitsList.innerHTML = '';
+    
+    // Sortează unitățile după nume
+    const sortedData = [...allData].sort((a, b) => {
+        const nameA = a['Nume Unitati'].toLowerCase();
+        const nameB = b['Nume Unitati'].toLowerCase();
+        return nameA.localeCompare(nameB);
+    });
+    
+    // Populează lista
+    sortedData.forEach((unit, index) => {
+        const unitItem = document.createElement('div');
+        unitItem.className = 'unit-item';
+        unitItem.dataset.index = index;
+        
+        // Determină culoarea în funcție de tip
+        const colors = {
+            'Școală Gimnazială': '#3498db',
+            'Liceu': '#e74c3c',
+            'Grădiniță': '#f39c12',
+            'Colegiu': '#9b59b6',
+            'Liceu Tehnologic': '#e67e22',
+            'Colegiu Național': '#8e44ad',
+            'Școală': '#3498db',
+            'Centrul Școlar de Educație Incluzivă': '#16a085',
+            'Școală Profesională': '#27ae60',
+            'Liceu Teoretic': '#c0392b',
+            'Colegiu Economic': '#d35400',
+            'Liceu de Arte': '#9b59b6',
+            'Colegiu Național Pedagogic': '#8e44ad',
+            'Grădinița cu Program Prelungit': '#f39c12',
+            'Școală Primară': '#3498db',
+            'Palatul Copiilor Și Elevilor': '#34495e',
+            'Liceu cu program sportiv prelungit': '#e74c3c',
+            'Centrul Județean de Resurse și Asistență Educațională': '#16a085',
+            'Școală Profesională Specială': '#27ae60',
+            'Colegiul Tehnic': '#d35400',
+            'Liceu Tehnologic Agricol': '#e67e22',
+            'Liceu Tehnologic de Industrie Alimentară': '#d35400',
+            'Liceu Tehnologic de Industrie Alimentara': '#d35400',
+            'Liceu Auto': '#e67e22',
+            'Liceu Teologic Romano-Catolic': '#8e44ad',
+            'Seminarul Teologic': '#8e44ad',
+            'Clubul Copiilor': '#34495e',
+            'Școala de Artă': '#9b59b6',
+            'C.J.R.A.E.': '#16a085',
+            'Centrul Școlar pentru Educație Incluzivă': '#16a085',
+            'Grădinița cu Program Normal': '#f39c12',
+            'Grădinița cu program normal': '#f39c12',
+            'Gradinita cu Program Prelungit': '#f39c12',
+            'Grădinița Program Prelungit': '#f39c12'
+        };
+        
+        const color = colors[unit.Tip] || '#3498db';
+        
+        unitItem.innerHTML = `
+            <div class="unit-name">${unit['Nume Unitati']}</div>
+            <div class="unit-details">
+                <span class="unit-judet">${normalizeJudet(unit.Judet)}</span>
+                <span class="unit-type" style="background-color: ${color}">${unit.Tip}</span>
+            </div>
+        `;
+        
+        // Adaugă event listener pentru click
+        unitItem.addEventListener('click', () => {
+            focusOnUnit(index);
+        });
+        
+        unitsList.appendChild(unitItem);
+    });
+    
+    // Actualizează numărul de unități
+    unitsCount.textContent = sortedData.length;
+    
+    // Adaugă event listener pentru căutare în listă
+    unitsSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const allItems = unitsList.querySelectorAll('.unit-item');
+        let visibleCount = 0;
+        
+        allItems.forEach(item => {
+            const unitName = item.querySelector('.unit-name').textContent.toLowerCase();
+            const unitJudet = item.querySelector('.unit-judet').textContent.toLowerCase();
+            const unitType = item.querySelector('.unit-type').textContent.toLowerCase();
+            
+            if (unitName.includes(searchTerm) || unitJudet.includes(searchTerm) || unitType.includes(searchTerm)) {
+                item.style.display = 'block';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        unitsCount.textContent = visibleCount;
+    });
+}
+
+// Funcție pentru a centra pe o unitate
+function focusOnUnit(index) {
+    const unit = allData[index];
+    const marker = allMarkers[index];
+    
+    if (marker && unit) {
+        // Centrare hartă pe marker
+        map.setView([parseFloat(unit.Latitudine), parseFloat(unit.Longitudine)], 15, {
+            animate: true,
+            duration: 1
+        });
+        
+        // Deschide popup-ul
+        marker.openPopup();
+        
+        // Evidențiază elementul din listă
+        document.querySelectorAll('.unit-item').forEach(item => {
+            item.classList.remove('active', 'highlight');
+        });
+        
+        const activeItem = document.querySelector(`.unit-item[data-index="${index}"]`);
+        if (activeItem) {
+            activeItem.classList.add('active', 'highlight');
+            activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+}
+
+// Funcție pentru a evidenția unitatea în listă la click pe marker
+function highlightUnitInList(markerIndex) {
+    document.querySelectorAll('.unit-item').forEach(item => {
+        item.classList.remove('active', 'highlight');
+    });
+    
+    const activeItem = document.querySelector(`.unit-item[data-index="${markerIndex}"]`);
+    if (activeItem) {
+        activeItem.classList.add('active', 'highlight');
+        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 }
 
 // Funcție pentru încărcare date din CSV
@@ -294,6 +447,9 @@ function loadData() {
                     
                     // Populare filtre
                     populateFilters();
+                    
+                    // Creare listă unități
+                    createUnitsList();
                     
                     // Ascundere loading
                     hideLoading();
@@ -399,7 +555,10 @@ function filterMarkers() {
     // Șterge toți marker-ele din cluster
     markerClusterGroup.clearLayers();
     
-    allMarkers.forEach(marker => {
+    // Actualizează și lista de unități
+    const allItems = document.querySelectorAll('.unit-item');
+    
+    allMarkers.forEach((marker, index) => {
         let includeMarker = true;
         
         // Filtrare județ (cu normalizare)
@@ -420,11 +579,28 @@ function filterMarkers() {
         if (includeMarker) {
             markerClusterGroup.addLayer(marker);
             vizibile++;
+            
+            // Afișează elementul din listă
+            if (allItems[index]) {
+                allItems[index].style.display = 'block';
+            }
+        } else {
+            // Ascunde elementul din listă
+            if (allItems[index]) {
+                allItems[index].style.display = 'none';
+            }
         }
     });
     
     // Actualizare număr vizibile
     document.querySelector('#stats .stat-card:nth-child(3) .stat-content p').textContent = vizibile;
+    
+    // Actualizează numărul de unități vizibile în listă
+    const visibleItems = document.querySelectorAll('.unit-item[style="display: block;"]').length;
+    const unitsCount = document.getElementById('unitsCount');
+    if (unitsCount) {
+        unitsCount.textContent = visibleItems;
+    }
 }
 
 // Funcție pentru resetare filtre
@@ -432,6 +608,7 @@ function resetFilters() {
     document.getElementById('filterJudet').value = '';
     document.getElementById('filterTip').value = '';
     document.getElementById('search').value = '';
+    document.getElementById('unitsSearch').value = '';
     
     // Afișare toate marker-ele
     markerClusterGroup.clearLayers();
@@ -439,8 +616,19 @@ function resetFilters() {
         markerClusterGroup.addLayer(marker);
     });
     
+    // Afișare toate elementele din listă
+    document.querySelectorAll('.unit-item').forEach(item => {
+        item.style.display = 'block';
+    });
+    
     // Actualizare număr vizibile
     document.querySelector('#stats .stat-card:nth-child(3) .stat-content p').textContent = allMarkers.length;
+    
+    // Actualizează numărul total de unități în listă
+    const unitsCount = document.getElementById('unitsCount');
+    if (unitsCount) {
+        unitsCount.textContent = allData.length;
+    }
 }
 
 // Funcție pentru afișare loading
@@ -458,6 +646,21 @@ function hideLoading() {
     if (loading) {
         loading.remove();
     }
+}
+
+// Adaugă butonul de toggle pentru mobile
+function createToggleButton() {
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'toggle-units';
+    toggleButton.innerHTML = '<i class="fas fa-list"></i>';
+    toggleButton.title = 'Afișează lista unităților';
+    
+    toggleButton.addEventListener('click', () => {
+        const unitsSection = document.querySelector('.units-section');
+        unitsSection.classList.toggle('visible');
+    });
+    
+    document.body.appendChild(toggleButton);
 }
 
 // Funcție pentru adăugare event listeners
@@ -480,6 +683,9 @@ function addEventListeners() {
             map.invalidateSize();
         }, 100);
     });
+    
+    // Creează butonul de toggle pentru mobile
+    createToggleButton();
 }
 
 // Inițializare la încărcarea paginii
