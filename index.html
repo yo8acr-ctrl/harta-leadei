@@ -4,48 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hartă Interactivă - Unități de Învățământ din România</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    
-    <!-- Leaflet MarkerCluster CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
-    
-    <!-- Font Awesome pentru iconițe -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Stiluri custom -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-map-marked-alt"></i>&nbsp;LeadEI Harta Unităților de Învățământ din România</h1>
+            <h1><i class="fas fa-map-marked-alt"></i> LeadEI Harta Unităților de Învățământ</h1>
             <p class="subtitle">Vizualizare interactivă a școlilor, liceelor și grădinițelor</p>
-            
             <div class="controls">
                 <div class="search-container">
-                    <input type="text" id="search" placeholder="Caută după nume...">
+                    <input type="text" id="search" placeholder="Caută o unitate de învățământ...">
                     <i class="fas fa-search"></i>
                 </div>
-                
                 <select id="filterJudet">
                     <option value="">Toate județele</option>
                 </select>
-                
                 <select id="filterTip">
                     <option value="">Toate tipurile</option>
-                    <option value="Școală Gimnazială">Școală Gimnazială</option>
-                    <option value="Liceu">Liceu</option>
-                    <option value="Grădiniță">Grădiniță</option>
-                    <option value="Colegiu">Colegiu</option>
                 </select>
-                
-                <button id="resetFilters"><i class="fas fa-redo"></i> Resetează</button>
+                <button id="resetFilters"><i class="fas fa-sync-alt"></i> Resetează</button>
             </div>
         </header>
-        
+
         <main>
             <div id="map"></div>
             
@@ -59,20 +43,18 @@
                         <p id="totalUnitati">0</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-map-pin"></i>
+                        <i class="fas fa-map-marker-alt"></i>
                     </div>
                     <div class="stat-content">
                         <h3>Județe Acoperite</h3>
                         <p id="totalJudete">0</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-filter"></i>
+                        <i class="fas fa-eye"></i>
                     </div>
                     <div class="stat-content">
                         <h3>Vizibile</h3>
@@ -101,22 +83,32 @@
                 </div>
             </div>
         </main>
-        
+
         <footer>
             <p>© 2025 Harta Unităților de Învățământ LeadEI. Toate drepturile rezervate.</p>
         </footer>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Leaflet MarkerCluster JS -->
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    
-    <!-- Papa Parse pentru CSV -->
-    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-    
-    <!-- Script custom -->
-    <script src="script.js"></script>
+    <!-- Secțiune listă unități -->
+    <div class="units-section">
+        <div class="units-header">
+            <h3><i class="fas fa-list"></i> Lista Unităților</h3>
+            <div class="units-search">
+                <input type="text" id="unitsSearch" placeholder="Caută în listă...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        <div class="units-count">
+            <span id="unitsCount">0</span> unități găsite
+        </div>
+        <div class="units-list" id="unitsList">
+            <!-- Lista va fi populată dinamic -->
+        </div>
+    </div>
 
-</body></html>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
