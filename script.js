@@ -218,172 +218,7 @@ function addMarker(data) {
     marker.tip = Tip;
     marker.nume = nume.toLowerCase();
     
-    // Adaugă event listener pentru click pe marker
-    marker.on('click', function() {
-        const markerIndex = allMarkers.indexOf(this);
-        if (markerIndex !== -1) {
-            highlightUnitInList(markerIndex);
-        }
-    });
-    
     return marker;
-}
-
-// Funcție pentru creare listă unități
-function createUnitsList() {
-    const unitsList = document.getElementById('unitsList');
-    const unitsSearch = document.getElementById('unitsSearch');
-    const unitsCount = document.getElementById('unitsCount');
-    
-    if (!unitsList || !unitsSearch || !unitsCount) {
-        console.error('Elementele necesare pentru listă nu au fost găsite!');
-        return;
-    }
-    
-    // Golește lista
-    unitsList.innerHTML = '';
-    
-    // Verifică dacă avem date
-    if (!allData || allData.length === 0) {
-        unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">Nu există date de afișat.</div>';
-        unitsCount.textContent = '0';
-        return;
-    }
-    
-    // Sortează unitățile după nume
-    const sortedData = [...allData].sort((a, b) => {
-        const nameA = a['Nume Unitati'].toLowerCase();
-        const nameB = b['Nume Unitati'].toLowerCase();
-        return nameA.localeCompare(nameB);
-    });
-    
-    // Populează lista
-    sortedData.forEach((unit, index) => {
-        const unitItem = document.createElement('div');
-        unitItem.className = 'unit-item';
-        unitItem.dataset.index = index;
-        
-        // Determină culoarea în funcție de tip
-        const colors = {
-            'Școală Gimnazială': '#3498db',
-            'Liceu': '#e74c3c',
-            'Grădiniță': '#f39c12',
-            'Colegiu': '#9b59b6',
-            'Liceu Tehnologic': '#e67e22',
-            'Colegiu Național': '#8e44ad',
-            'Școală': '#3498db',
-            'Centrul Școlar de Educație Incluzivă': '#16a085',
-            'Școală Profesională': '#27ae60',
-            'Liceu Teoretic': '#c0392b',
-            'Colegiu Economic': '#d35400',
-            'Liceu de Arte': '#9b59b6',
-            'Colegiu Național Pedagogic': '#8e44ad',
-            'Grădinița cu Program Prelungit': '#f39c12',
-            'Școală Primară': '#3498db',
-            'Palatul Copiilor Și Elevilor': '#34495e',
-            'Liceu cu program sportiv prelungit': '#e74c3c',
-            'Centrul Județean de Resurse și Asistență Educațională': '#16a085',
-            'Școală Profesională Specială': '#27ae60',
-            'Colegiu Tehnic': '#d35400',
-            'Liceu Tehnologic Agricol': '#e67e22',
-            'Liceu Tehnologic de Industrie Alimentară': '#d35400',
-            'Liceu Tehnologic de Industrie Alimentara': '#d35400',
-            'Liceu Auto': '#e67e22',
-            'Liceu Teologic Romano-Catolic': '#8e44ad',
-            'Seminarul Teologic': '#8e44ad',
-            'Clubul Copiilor': '#34495e',
-            'Școala de Artă': '#9b59b6',
-            'C.J.R.A.E.': '#16a085',
-            'Centrul Școlar pentru Educație Incluzivă': '#16a085',
-            'Grădinița cu Program Normal': '#f39c12',
-            'Grădinița cu program normal': '#f39c12',
-            'Gradinita cu Program Prelungit': '#f39c12',
-            'Grădinița Program Prelungit': '#f39c12'
-        };
-        
-        const color = colors[unit.Tip] || '#3498db';
-        
-        unitItem.innerHTML = `
-            <div class="unit-name">${unit['Nume Unitati']}</div>
-            <div class="unit-details">
-                <span class="unit-judet">${normalizeJudet(unit.Judet)}</span>
-                <span class="unit-type" style="background-color: ${color}">${unit.Tip}</span>
-            </div>
-        `;
-        
-        // Adaugă event listener pentru click
-        unitItem.addEventListener('click', () => {
-            focusOnUnit(index);
-        });
-        
-        unitsList.appendChild(unitItem);
-    });
-    
-    // Actualizează numărul de unități
-    unitsCount.textContent = sortedData.length;
-    
-    // Adaugă event listener pentru căutare în listă
-    unitsSearch.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        const allItems = unitsList.querySelectorAll('.unit-item');
-        let visibleCount = 0;
-        
-        allItems.forEach(item => {
-            const unitName = item.querySelector('.unit-name').textContent.toLowerCase();
-            const unitJudet = item.querySelector('.unit-judet').textContent.toLowerCase();
-            const unitType = item.querySelector('.unit-type').textContent.toLowerCase();
-            
-            if (unitName.includes(searchTerm) || unitJudet.includes(searchTerm) || unitType.includes(searchTerm)) {
-                item.style.display = 'block';
-                visibleCount++;
-            } else {
-                item.style.display = 'none';
-            }
-        });
-        
-        unitsCount.textContent = visibleCount;
-    });
-}
-
-// Funcție pentru a centra pe o unitate
-function focusOnUnit(index) {
-    const unit = allData[index];
-    const marker = allMarkers[index];
-    
-    if (marker && unit) {
-        // Centrare hartă pe marker
-        map.setView([parseFloat(unit.Latitudine), parseFloat(unit.Longitudine)], 15, {
-            animate: true,
-            duration: 1
-        });
-        
-        // Deschide popup-ul
-        marker.openPopup();
-        
-        // Evidențiază elementul din listă
-        document.querySelectorAll('.unit-item').forEach(item => {
-            item.classList.remove('active', 'highlight');
-        });
-        
-        const activeItem = document.querySelector(`.unit-item[data-index="${index}"]`);
-        if (activeItem) {
-            activeItem.classList.add('active', 'highlight');
-            activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }
-}
-
-// Funcție pentru a evidenția unitatea în listă la click pe marker
-function highlightUnitInList(markerIndex) {
-    document.querySelectorAll('.unit-item').forEach(item => {
-        item.classList.remove('active', 'highlight');
-    });
-    
-    const activeItem = document.querySelector(`.unit-item[data-index="${markerIndex}"]`);
-    if (activeItem) {
-        activeItem.classList.add('active', 'highlight');
-        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
 }
 
 // Funcție pentru încărcare date din CSV
@@ -391,20 +226,6 @@ function loadData() {
     showLoading();
     
     console.log('Începem încărcarea datelor...');
-    
-    // Verifică dacă există elementele necesare
-    const unitsList = document.getElementById('unitsList');
-    const unitsCount = document.getElementById('unitsCount');
-    
-    if (!unitsList) {
-        console.error('Elementul unitsList nu a fost găsit!');
-        hideLoading();
-        return;
-    }
-    
-    // Afișează un mesaj de încărcare în listă
-    unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">Se încarcă datele...</div>';
-    if (unitsCount) unitsCount.textContent = '0';
     
     fetch('data/locatii.csv')
         .then(response => {
@@ -427,7 +248,6 @@ function loadData() {
                     // Verifică dacă avem date
                     if (results.data.length === 0) {
                         console.error('CSV-ul este gol sau are format greșit');
-                        unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Eroare: Fișierul CSV este gol sau are format greșit.</div>';
                         hideLoading();
                         alert('Fișierul CSV este gol sau are format greșit.');
                         return;
@@ -455,7 +275,6 @@ function loadData() {
                     console.log(`Unități valide: ${allData.length} din ${results.data.length}`);
                     
                     if (allData.length === 0) {
-                        unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Eroare: Nu s-au găsit unități cu coordonate valide.</div>';
                         alert('Nu s-au găsit unități cu coordonate valide. Verifică fișierul CSV.');
                         hideLoading();
                         return;
@@ -476,9 +295,6 @@ function loadData() {
                     // Populare filtre
                     populateFilters();
                     
-                    // Creare listă unități
-                    createUnitsList();
-                    
                     // Ascundere loading
                     hideLoading();
                     
@@ -489,7 +305,6 @@ function loadData() {
                 },
                 error: function(error) {
                     console.error('Eroare la parsare CSV:', error);
-                    unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Eroare la parsarea datelor CSV.</div>';
                     hideLoading();
                     alert('Eroare la parsarea datelor. Verifică formatul CSV.');
                 }
@@ -497,13 +312,12 @@ function loadData() {
         })
         .catch(error => {
             console.error('Eroare la încărcare date:', error);
-            unitsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Eroare: Nu s-a putut încărca fișierul data/locatii.csv</div>';
             hideLoading();
             alert('Eroare la conectarea la server. Verifică calea către fișierul CSV.');
         });
 }
 
-// Funcție pentru actualizare statistici (fără tooltip)
+// Funcție pentru actualizare statistici (cu normalizare și detalii)
 function updateStats() {
     const totalUnitati = allData.length;
     const judeteNormalize = allData.map(item => normalizeJudet(item.Judet));
@@ -528,22 +342,57 @@ function updateStats() {
     // Actualizăm elementele din card-uri
     document.querySelector('#stats .stat-card:nth-child(1) .stat-content p').textContent = totalUnitati;
     
-    // Afișăm numărul de județe din date și totalul (fără tooltip)
+    // Afișăm numărul de județe din date și totalul
     const judeteElement = document.querySelector('#stats .stat-card:nth-child(2) .stat-content p');
     judeteElement.textContent = `${numarJudeteDinDate}/${numarTotalJudete}`;
     
-    // Eliminăm orice tooltip existent
-    judeteElement.removeAttribute('title');
-    judeteElement.style.cursor = 'default';
-    judeteElement.style.borderBottom = 'none';
+    // Adăugăm tooltip informativ
+    let tooltipText = `Datele acoperă ${numarJudeteDinDate} din cele ${numarTotalJudete} județe ale României`;
+    if (judeteLipsa.length > 0) {
+        tooltipText += `\n\nJudețe lipsă din date:\n${judeteLipsa.join(', ')}`;
+    }
+    judeteElement.setAttribute('title', tooltipText);
+    judeteElement.style.cursor = 'help';
+    judeteElement.style.borderBottom = '1px dotted #999';
     
     // Actualizăm numărul de unități vizibile
     document.querySelector('#stats .stat-card:nth-child(3) .stat-content p').textContent = allMarkers.length;
     
-    // Eliminăm complet elementul pentru județele lipsă
-    const judeteLipsaElement = document.getElementById('judeteLipsa');
-    if (judeteLipsaElement) {
-        judeteLipsaElement.remove();
+    // Adăugăm un element pentru județele lipsă dacă nu există
+    let judeteLipsaElement = document.getElementById('judeteLipsa');
+    if (!judeteLipsaElement) {
+        judeteLipsaElement = document.createElement('div');
+        judeteLipsaElement.id = 'judeteLipsa';
+        judeteLipsaElement.style.cssText = `
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #856404;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        `;
+        
+        // Îl adăugăm după secțiunea de statistici
+        const statsSection = document.getElementById('stats');
+        if (statsSection) {
+            statsSection.parentNode.insertBefore(judeteLipsaElement, statsSection.nextSibling);
+        }
+    }
+    
+    // Afișăm județele lipsă
+    if (judeteLipsa.length > 0) {
+        judeteLipsaElement.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <span style="font-size: 18px;">⚠️</span>
+                <strong>Atenție: Lipsesc ${judeteLipsa.length} județe din date:</strong>
+            </div>
+            <div style="color: #d63031; font-weight: 500;">${judeteLipsa.join(', ')}</div>
+        `;
+        judeteLipsaElement.style.display = 'block';
+    } else {
+        judeteLipsaElement.style.display = 'none';
     }
 }
 
@@ -585,10 +434,7 @@ function filterMarkers() {
     // Șterge toți marker-ele din cluster
     markerClusterGroup.clearLayers();
     
-    // Actualizează și lista de unități
-    const allItems = document.querySelectorAll('.unit-item');
-    
-    allMarkers.forEach((marker, index) => {
+    allMarkers.forEach(marker => {
         let includeMarker = true;
         
         // Filtrare județ (cu normalizare)
@@ -609,28 +455,11 @@ function filterMarkers() {
         if (includeMarker) {
             markerClusterGroup.addLayer(marker);
             vizibile++;
-            
-            // Afișează elementul din listă
-            if (allItems[index]) {
-                allItems[index].style.display = 'block';
-            }
-        } else {
-            // Ascunde elementul din listă
-            if (allItems[index]) {
-                allItems[index].style.display = 'none';
-            }
         }
     });
     
     // Actualizare număr vizibile
     document.querySelector('#stats .stat-card:nth-child(3) .stat-content p').textContent = vizibile;
-    
-    // Actualizează numărul de unități vizibile în listă
-    const visibleItems = document.querySelectorAll('.unit-item[style="display: block;"]').length;
-    const unitsCount = document.getElementById('unitsCount');
-    if (unitsCount) {
-        unitsCount.textContent = visibleItems;
-    }
 }
 
 // Funcție pentru resetare filtre
@@ -638,7 +467,6 @@ function resetFilters() {
     document.getElementById('filterJudet').value = '';
     document.getElementById('filterTip').value = '';
     document.getElementById('search').value = '';
-    document.getElementById('unitsSearch').value = '';
     
     // Afișare toate marker-ele
     markerClusterGroup.clearLayers();
@@ -646,19 +474,8 @@ function resetFilters() {
         markerClusterGroup.addLayer(marker);
     });
     
-    // Afișare toate elementele din listă
-    document.querySelectorAll('.unit-item').forEach(item => {
-        item.style.display = 'block';
-    });
-    
     // Actualizare număr vizibile
     document.querySelector('#stats .stat-card:nth-child(3) .stat-content p').textContent = allMarkers.length;
-    
-    // Actualizează numărul total de unități în listă
-    const unitsCount = document.getElementById('unitsCount');
-    if (unitsCount) {
-        unitsCount.textContent = allData.length;
-    }
 }
 
 // Funcție pentru afișare loading
@@ -676,21 +493,6 @@ function hideLoading() {
     if (loading) {
         loading.remove();
     }
-}
-
-// Adaugă butonul de toggle pentru mobile
-function createToggleButton() {
-    const toggleButton = document.createElement('button');
-    toggleButton.className = 'toggle-units';
-    toggleButton.innerHTML = '<i class="fas fa-list"></i>';
-    toggleButton.title = 'Afișează lista unităților';
-    
-    toggleButton.addEventListener('click', () => {
-        const unitsSection = document.querySelector('.units-section');
-        unitsSection.classList.toggle('visible');
-    });
-    
-    document.body.appendChild(toggleButton);
 }
 
 // Funcție pentru adăugare event listeners
@@ -713,9 +515,6 @@ function addEventListeners() {
             map.invalidateSize();
         }, 100);
     });
-    
-    // Creează butonul de toggle pentru mobile
-    createToggleButton();
 }
 
 // Inițializare la încărcarea paginii
