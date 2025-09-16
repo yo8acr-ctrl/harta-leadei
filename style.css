@@ -26,7 +26,7 @@ body {
 }
 
 .container {
-    max-width: 1400px;
+    max-width: calc(1400px - 340px);
     margin: 0 auto;
     padding: 20px;
 }
@@ -150,6 +150,7 @@ header h1 i {
     position: relative;
     z-index: 1;
     overflow: hidden;
+    width: 100%;
 }
 
 /* Statistici */
@@ -404,6 +405,7 @@ footer {
     display: flex;
     flex-direction: column;
     transition: transform 0.3s ease;
+    border: 2px solid var(--secondary-color);
 }
 
 .units-header {
@@ -625,6 +627,14 @@ footer {
     .toggle-units {
         display: flex;
     }
+    
+    #map {
+        width: 100%;
+    }
+    
+    .container {
+        max-width: 100%;
+    }
 }
 
 @media (min-width: 1025px) {
@@ -633,7 +643,7 @@ footer {
     }
     
     #map {
-        margin-right: 340px;
+        width: calc(100% - 340px);
     }
     
     .container {
@@ -713,7 +723,7 @@ select:focus {
         height: 100vh;
         border-radius: 0;
         box-shadow: none;
-        margin-right: 0;
+        width: 100%;
     }
     
     .container {
